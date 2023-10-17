@@ -70,15 +70,21 @@ namespace Tools
         {
             string connectionString = "Server="+server+";Port="+port+";Database="+Database+";Uid="+Uid+";Pwd="+Pwd+";";
             connection = new MySqlConnection(connectionString);
-            connection.Open();
-            if (connection.State==ConnectionState.Open)
+            try
             {
-                Connected= true;
-            }
-            else
+                connection.Open();
+                if (connection.State==ConnectionState.Open)
+                {
+                    Connected= true;
+                }
+                else
+                {
+                    Connected= false;
+                }
+            } catch
             {
                 Connected= false;
-            }          
+            }        
         }
 
         /// <summary>

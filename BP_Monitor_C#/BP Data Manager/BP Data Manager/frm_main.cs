@@ -100,6 +100,7 @@ namespace BP_Data_Manager
         {
             List<bp_data> bp_Datas;
             bp_Datas= db.Get_Data("tbl_BP_Data", "jgjghj");
+            if (bp_Datas==null) return;
 
             dg_display.Rows.Clear();
             dg_display.Rows.Add(bp_Datas.Count);
