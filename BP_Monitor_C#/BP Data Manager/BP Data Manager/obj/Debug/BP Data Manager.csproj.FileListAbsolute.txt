@@ -86,3 +86,5 @@ C:\Users\sudip\OneDrive\Desktop\CRUD Operation On WordPress Database Using C# An
 C:\Users\sudip\OneDrive\Desktop\CRUD Operation On WordPress Database Using C# And REST API\BP_Monitor_C#\BP Data Manager\BP Data Manager\obj\Debug\BP Data Manager.csproj.CopyComplete
 C:\Users\sudip\OneDrive\Desktop\CRUD Operation On WordPress Database Using C# And REST API\BP_Monitor_C#\BP Data Manager\BP Data Manager\obj\Debug\BP Data Manager.exe
 C:\Users\sudip\OneDrive\Desktop\CRUD Operation On WordPress Database Using C# And REST API\BP_Monitor_C#\BP Data Manager\BP Data Manager\obj\Debug\BP Data Manager.pdb
+C:\Users\sudip\OneDrive\Desktop\CRUD Operation On WordPress Database Using C# And REST API\BP_Monitor_C#\BP Data Manager\BP Data Manager\bin\Debug\Newtonsoft.Json.dll
+C:\Users\sudip\OneDrive\Desktop\CRUD Operation On WordPress Database Using C# And REST API\BP_Monitor_C#\BP Data Manager\BP Data Manager\bin\Debug\Newtonsoft.Json.xml

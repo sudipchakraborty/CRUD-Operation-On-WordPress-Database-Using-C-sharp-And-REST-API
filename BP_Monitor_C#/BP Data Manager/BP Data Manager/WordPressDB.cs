@@ -246,14 +246,22 @@ namespace Tools
             if(!Connected) Connect();
 
             List<bp_data> lst_bp_data = new List<bp_data>();
-          
+            MySqlDataReader reader;
 
             if (Connected)
             {
                 string query = "SELECT * FROM " +
                                 table_name;
                 MySqlCommand command = new MySqlCommand(query, connection);
-                MySqlDataReader reader = command.ExecuteReader();
+
+                try
+                {
+                    reader = command.ExecuteReader();
+                }catch (Exception ex) {
+
+                    return null;             
+                }
+
 
                 while (reader.Read())
                 {
@@ -266,7 +274,7 @@ namespace Tools
                     bp_.DIA = reader.GetString("DIA");
                     bp_.PUL = reader.GetString("PUL");
 
-                    lst_bp_data.Add(bp_);
+                    lst_bp_data.Add(bp_); //933 04 22 308
                 }
                 reader.Close();
                 return lst_bp_data;

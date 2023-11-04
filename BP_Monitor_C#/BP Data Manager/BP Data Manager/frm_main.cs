@@ -1,68 +1,90 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
- 
 
 using Tools;
-
 using WebSocketSharp;
 
 namespace BP_Data_Manager
 {
     public partial class frm_main : Form
     {
-        WordPressDB db;
+        // WordPressDB db;
+        WordPressDB_REST db;
         MSG msg;
 
         public frm_main()
         {
             InitializeComponent();
             msg=new MSG(lst_msg);
-            db = new WordPressDB(txt_server.Text, txt_port.Text, txt_Database.Text, txt_Uid.Text, txt_password.Text);
+            db = new WordPressDB_REST(txt_server.Text, txt_port.Text, txt_Database.Text, txt_Uid.Text, txt_password.Text);
         }
 
         private void frm_main_Load(object sender, EventArgs e)
         {
-            Display_Data();
+           // Display_Data();
         }
 
-        private void btn_connect_Click(object sender, EventArgs e)
+        private async void btn_connect_Click(object sender, EventArgs e)
         {
-          db.Connect();
-          msg.push("Connected With Database OK");            
+            await  db.Connect("http://simulab.local/wp-json/db/v1");
+            if (db.Connected) msg.push("Connected With Database OK");
+            else msg.push("Error!!! Not able to connect");
         }
 
         private void btn_disconnect_Click(object sender, EventArgs e)
         {
-            db.Disconnect();
+           // db.Disconnect();
             msg.push("Database Disconnected");
         }
 
-        private void btn_read_all_Click(object sender, EventArgs e)
+        private async void btn_read_all_Click(object sender, EventArgs e)
         {
-            Display_Data();
+            await db.Read();
+            List<bp_data> lst_bp_data = new List<bp_data>();
+            dynamic jsonDe = JsonConvert.DeserializeObject(db.str_response);
+          
+            foreach (var data in jsonDe)
+            {
+                bp_data bp_ = new bp_data();
+
+                bp_.Record_No=data.id;
+                bp_.User_ID =  data.User_ID; 
+                bp_.DateTime =data.DateTime;
+                bp_.SIS = data.SIS;
+                bp_.DIA = data.DIA;
+                bp_.PUL = data.PUL;
+
+                lst_bp_data.Add(bp_);   
+            }
+                Display_Data(lst_bp_data);             
         }
 
-        private void btn_create_table_Click(object sender, EventArgs e)
+        private async void btn_create_table_Click(object sender, EventArgs e)
         {
+            string tbl = "wp_bp2";
             string createTableQuery =
-                "CREATE TABLE IF NOT EXISTS" +
-                " tbl_BP_Data " +
-                "(" +
-                    "Record_No INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "User_ID VARCHAR(10) NOT NULL, " +
-                    "DateTime datetime NOT NULL, " +
-                    "SIS INT(3) unsigned NOT NULL, " +
-                    "DIA int(3) unsigned NOT NULL, " +
-                    "PUL int(3) unsigned NOT NULL" +
-                ")";
-             db.Create_Table(createTableQuery);
+                "CREATE TABLE IF NOT EXISTS "+tbl+"( "+
+                "id mediumint(11) NOT NULL AUTO_INCREMENT, "+
+                "emp_id varchar(10) NOT NULL, "+
+                "DateTime datetime NOT NULL, "+
+                "SIS INT(3) unsigned NOT NULL, "+
+                "DIA INT(3) unsigned NOT NULL, "+
+                "PUL INT(3) unsigned NOT NULL, "+
+                "PRIMARY KEY id(id) )";
+            await  db.Execute_command_String("http://simulab.local/wp-json/db/v1","create",createTableQuery);
+            if (db.str_response=="<Table Created>") msg.push("Table Created");
+            else msg.push("Error!!! Unable to create Table");
         }
 
         private void btn_delete_table_Click(object sender, EventArgs e)
@@ -71,7 +93,7 @@ namespace BP_Data_Manager
 
             if (result == DialogResult.Yes)
             {
-                db.Delete_Table("tbl_bp_data");
+              // db.Delete_Table("tbl_bp_data");
                 msg.push("Table Deleted");
             }          
         }
@@ -86,8 +108,8 @@ namespace BP_Data_Manager
             list.Add(new KeyValuePair<string, string>("DIA", txt_dia.Text.ToString()));
             list.Add(new KeyValuePair<string, string>("PUL", txt_pul.Text.ToString()));
 
-            db.Insert_Data("tbl_bp_data", list);
-            Display_Data();
+            db.Insert_Data("wp_bp2", list);
+          //  Display_Data();
         }
 
         private void dg_display_KeyDown(object sender, KeyEventArgs e)
@@ -96,10 +118,8 @@ namespace BP_Data_Manager
         }
 
 
-        private void Display_Data()
-        {
-            List<bp_data> bp_Datas;
-            bp_Datas= db.Get_Data("tbl_BP_Data", "jgjghj");
+        private void Display_Data(List<bp_data> bp_Datas)
+        {          
             if (bp_Datas==null) return;
 
             dg_display.Rows.Clear();
@@ -132,22 +152,23 @@ namespace BP_Data_Manager
                 string PUL = dg_display[5, c_row].Value.ToString();
 
                 var list = new List<KeyValuePair<string, string>>();
-
-                list.Add(new KeyValuePair<string, string>("User_ID", User_ID));
-
+              
                 DateTime myDateTime = DateTime.Now;
                 string sqlFormattedDate = myDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                list.Add(new KeyValuePair<string, string>("DateTime", sqlFormattedDate));
-                list.Add(new KeyValuePair<string, string>("SIS", SIS));
-                list.Add(new KeyValuePair<string, string>("DIA", DIA));
-                list.Add(new KeyValuePair<string, string>("PUL", PUL));
 
-                db.Update_Data("tbl_bp_data", list, "Record_No="+Record_ID);
-                Display_Data();
+                list.Add(new KeyValuePair<string, string>("id",         Record_ID));
+                list.Add(new KeyValuePair<string, string>("User_ID",    User_ID));
+                list.Add(new KeyValuePair<string, string>("DateTime",   sqlFormattedDate));
+                list.Add(new KeyValuePair<string, string>("SIS",        SIS));
+                list.Add(new KeyValuePair<string, string>("DIA",        DIA));
+                list.Add(new KeyValuePair<string, string>("PUL",        PUL));
+
+                db.Update_Data("wp_bp2", list);
+                //Display_Data();
             }
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private async void button5_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Do you want to Delete Record?", "Confirmation", 
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -156,18 +177,23 @@ namespace BP_Data_Manager
             {
                 int c_row = dg_display.CurrentRow.Index;
                 string Record_ID = dg_display[0, c_row].Value.ToString();
-                
-                if( db.Delete_Data("tbl_bp_data", "Record_No="+Record_ID))
-                {
-                    MessageBox.Show("Record Sucessfully Deleted");
-                    Display_Data();
-                }
-                else
-                {
-                    MessageBox.Show("Error!!!!Not able to Delete Records");
-                }              
+
+                var list = new List<KeyValuePair<string, string>>();
+                list.Add(new KeyValuePair<string, string>("id", Record_ID));
+
+                await db.Delete_Data("wp_bp2", list);
+                //{
+                //    messagebox.show("record sucessfully deleted");
+                //    display_data();
+                //}
+                //else
+                //{
+                //    messagebox.show("error!!!!not able to delete records");
+                //}
             }          
         }
- 
+
+     
+   
     }
 }
