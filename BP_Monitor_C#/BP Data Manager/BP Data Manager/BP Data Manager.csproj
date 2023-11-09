@@ -111,8 +111,10 @@
     <Compile Include="frm_main.Designer.cs">
       <DependentUpon>frm_main.cs</DependentUpon>
     </Compile>
+    <Compile Include="global.cs" />
     <Compile Include="MSG.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="project_BP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Websocket_Client.cs" />
     <Compile Include="WordPressDB_REST.cs" />

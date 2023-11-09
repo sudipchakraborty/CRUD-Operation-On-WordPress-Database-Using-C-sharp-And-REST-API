@@ -298,7 +298,6 @@
             this.dg_display.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dg_display.Size = new System.Drawing.Size(817, 406);
             this.dg_display.TabIndex = 0;
-            this.dg_display.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dg_display_KeyDown);
             this.dg_display.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.dg_display_PreviewKeyDown);
             // 
             // Column1

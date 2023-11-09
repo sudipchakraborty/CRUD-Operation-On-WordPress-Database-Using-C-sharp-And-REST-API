@@ -8,6 +8,15 @@ namespace BP_Data_Manager
 {
     public class bp_data
     {
+
+        public string cmd { get; set; }
+
+        public string cmd_string { get; set; }
+
+        public string tbl_name { get; set; }
+
+        public string id { get; set; }
+
         public int Record_No { get; set; }
 
         public string User_ID { get; set; }
@@ -22,3 +31,5 @@ namespace BP_Data_Manager
 
     }
 }
+
+ 
